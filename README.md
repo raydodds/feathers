@@ -1,3 +1,3 @@
 # feathers
 
-See [feathers](www.raydodds.com/feathers) for a more detailed explanation of the project.
+See [feathers](http://www.raydodds.com/feathers) for a more detailed explanation of the project.
