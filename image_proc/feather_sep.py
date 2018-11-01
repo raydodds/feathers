@@ -3,6 +3,7 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import argrelextrema
+from scipy.ndimage import gaussian_filter
 
 HORIZONTAL_STRUC_DIV = 15
 VERTICAL_STRUC_DIV = 15
@@ -17,106 +18,83 @@ def main(argv):
     img_src = cv.imread(argv[1], cv.IMREAD_COLOR)
     h, w, ch = img_src.shape
     img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
-    sig = np.zeros(w)
 
+    sig_y = np.zeros(h)
+    for i in range (0, h):
+        for j in range (0, w):
+            sig_y[i] += img_gs[i,j]
+
+    #sig_y = smooth(sig_y, 45, 'bartlett')
+    sig_y = gaussian_filter(sig_y, 10)
+    maxima_y = argrelextrema(sig_y, np.greater)
+    maxima_y = maxima_y[0]
+    minima_y = argrelextrema(sig_y, np.less)
+    minima_y = minima_y[0]
+
+    big_max = 0
+    for max in maxima_y:
+        if sig_y[max] > sig_y[big_max]:
+            big_max = max
+
+    bottom_cut = 0
+    top_cut = 0
+    for i in range(0, len(minima_y) - 1):
+        if minima_y[i] < big_max and minima_y[i+1] > big_max:
+            bottom_cut = minima_y[i]
+            top_cut = minima_y[i+1]
+    print(bottom_cut, top_cut)
+
+    img_src = img_src[bottom_cut:top_cut, 0:w]
+
+    h, w, ch = img_src.shape
+    img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
+    sig = np.zeros(w)
     for i in range (0, w):
         for j in range (0, h):
             sig[i] += img_gs[j,i]
 
-    sig = smooth(sig, 57, 'blackman')
+    #sig = smooth(sig, 30, 'blackman')
+    sig = gaussian_filter(sig, 5)
     minima = argrelextrema(sig, np.greater)
     minima = minima[0]
+    #print(minima)
+
+    img_src = img_src[0:h, minima[1]:w]
+
+    h, w, ch = img_src.shape
+    img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
+    sig = np.zeros(w)
+    for i in range (0, w):
+        for j in range (0, h):
+            sig[i] += img_gs[j,i]
+
+    sig = gaussian_filter(sig, 5)
+    minima = argrelextrema(sig, np.less)
+    minima = minima[0]
+
+    show_wait_destroy("ass",img_src)
+    #print(minima_y)
+    #print(bottom_cut,top_cut)
     feathers = []
     for i in range (0, len(minima) - 1):
-        feathers.append(img_src[0:h, minima[i]:minima[i+1]])
+        new_feath = img_src[0:h, minima[i]:minima[i+1]]
+        fh,fw,fc = new_feath.shape
+        if(fh > 0 and fw > 0):
+            cv.imwrite("f"+str(i)+".png",new_feath)
+            feathers.append(new_feath)
 
-    print(len(feathers))
+    new_feath = img_src[0:h, minima[len(minima)-1]:w]
+    fh,fw,fc = new_feath.shape
+    if(fh > 0 and fw > 0):
+        cv.imwrite("f"+str(len(minima)-1)+".png",new_feath)
+        feathers.append(new_feath)
+
+    #print(len(feathers))
     for i in range (0, len(feathers)):
         show_wait_destroy("feather", feathers[i])
     plt.plot(sig)
-    #plt.show()
-    plt.savefig('signal.png')
-
-def smooth(x,window_len=11,window='hanning'):
-    """smooth the data using a window with requested size.
-
-    This method is based on the convolution of a scaled window with the signal.
-    The signal is prepared by introducing reflected copies of the signal
-    (with the window size) in both ends so that transient parts are minimized
-    in the begining and end part of the output signal.
-
-    input:
-        x: the input signal
-        window_len: the dimension of the smoothing window; should be an odd integer
-        window: the type of window from 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'
-            flat window will produce a moving average smoothing.
-
-    output:
-        the smoothed signal
-
-    example:
-
-    t=linspace(-2,2,0.1)
-    x=sin(t)+randn(len(t))*0.1
-    y=smooth(x)
-
-    see also:
-
-    numpy.hanning, numpy.hamming, numpy.bartlett, numpy.blackman, numpy.convolve
-    scipy.signal.lfilter
-
-    TODO: the window parameter could be the window itself if an array instead of a string
-    NOTE: length(output) != length(input), to correct this: return y[(window_len/2-1):-(window_len/2)] instead of just y.
-    """
-
-    if x.ndim != 1:
-        raise ValueError, "smooth only accepts 1 dimension arrays."
-
-    if x.size < window_len:
-        raise ValueError, "Input vector needs to be bigger than window size."
-
-
-    if window_len<3:
-        return x
-
-
-    if not window in ['flat', 'hanning', 'hamming', 'bartlett', 'blackman']:
-        raise ValueError, "Window is on of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'"
-
-
-    s=np.r_[x[window_len-1:0:-1],x,x[-2:-window_len-1:-1]]
-    #print(len(s))
-    if window == 'flat': #moving average
-        w=np.ones(window_len,'d')
-    else:
-        w=eval('np.'+window+'(window_len)')
-
-    y=np.convolve(w/w.sum(),s,mode='valid')
-    return y
-
-def savitzky_golay(y, window_size, order, deriv=0, rate=1):
-    from math import factorial
-
-    try:
-        window_size = np.abs(np.int(window_size))
-        order = np.abs(np.int(order))
-    except ValueError, msg:
-        raise ValueError("window_size and order have to be of type int")
-    if window_size % 2 != 1 or window_size < 1:
-        raise TypeError("window_size size must be a positive odd number")
-    if window_size < order + 2:
-        raise TypeError("window_size is too small for the polynomials order")
-    order_range = range(order+1)
-    half_window = (window_size -1) // 2
-    # precompute coefficients
-    b = np.mat([[k**i for i in order_range] for k in range(-half_window, half_window+1)])
-    m = np.linalg.pinv(b).A[deriv] * rate**deriv * factorial(deriv)
-    # pad the signal at the extremes with
-    # values taken from the signal itself
-    firstvals = y[0] - np.abs( y[1:half_window+1][::-1] - y[0] )
-    lastvals = y[-1] + np.abs(y[-half_window-1:-1][::-1] - y[-1])
-    y = np.concatenate((firstvals, y, lastvals))
-    return np.convolve( m[::-1], y, mode='valid')
+    plt.show()
+    #plt.savefig('signal.png')
 
 if __name__ == "__main__":
     if(len(sys.argv) < 1):
