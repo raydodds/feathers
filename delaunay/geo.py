@@ -7,7 +7,10 @@ class Point(object):
         self.x = x
         self.y = y
 
-    def equals(self, other):
+    def __repr__(self):
+        return "Point(%s, %s)" % (self.x, self.y)
+
+    def __eq__(self, other):
         ret = False
         dx = math.abs(self.x - other.x)
         dy = math.abs(self.y - other.y)
@@ -17,24 +20,49 @@ class Point(object):
 
         return ret
 
+    def __ne__(self, other):
+        ret = False
+        dx = math.abs(self.x - other.x)
+        dy = math.abs(self.y - other.y)
+
+        if not (dx < tolerance and dy < tolerance):
+            ret = True
+
+        return ret
+
 class Edge(object):
     def __init__(self, p1, p2):
         self.p1 = p1
         self.p2 = p2
 
-    def equals(other):
+    def __repr__(self):
+        return "Edge(%s, %s)" % (self.p1, self.p2)
+
+    def __eq__(self, other):
         ret = False
-        if (self.p1.equals(other.p1) and self.p2.equals(other.p2))\
-           (self.p1.equals(other.p2) and self.p2.equals(other.p1)):
+        if (self.p1 == other.p1 and self.p2 == other.p2)\
+           (self.p1 == other.p2 and self.p2 == other.p1):
             ret = True
 
         return ret
+
+    def __ne__(self, other)
+        ret = False
+        if not ((self.p1 == other.p1 and self.p2 == other.p2)\
+           (self.p1 == other.p2 and self.p2 == other.p1)):
+            ret = True
+
+        return ret
+
+    def __hash__(self):
+        return hash(self.__repr__())
 
 class Circle(object):
     def __init__(self, center, rad):
         self.center = center
         self.rad = rad
 
+    # Is this point within the circumcircle?
     def in_circle(self, p):
         ret = False
         dx = self.x - p.x
@@ -56,6 +84,7 @@ class Triangle(object):
         self.e2 = Edge(p2, p3)
         self.e3 = Edge(p3, p1)
 
+        # Calculate circumcenter, radius (might be wrong)
         ux = p2.x - p1.x
         uy = p2.y - p1.y
         vx = p3.x - p1.x
