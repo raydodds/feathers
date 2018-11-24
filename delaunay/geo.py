@@ -12,10 +12,10 @@ class Point(object):
 
     def __eq__(self, other):
         ret = False
-        dx = math.abs(self.x - other.x)
-        dy = math.abs(self.y - other.y)
+        dx = abs(self.x - other.x)
+        dy = abs(self.y - other.y)
 
-        if dx < tolerance and dy < tolerance:
+        if dx < TOLERANCE and dy < TOLERANCE:
             ret = True
 
         return ret
@@ -25,7 +25,7 @@ class Point(object):
         dx = math.abs(self.x - other.x)
         dy = math.abs(self.y - other.y)
 
-        if not (dx < tolerance and dy < tolerance):
+        if not (dx < TOLERANCE and dy < TOLERANCE):
             ret = True
 
         return ret
@@ -40,15 +40,15 @@ class Edge(object):
 
     def __eq__(self, other):
         ret = False
-        if (self.p1 == other.p1 and self.p2 == other.p2)\
+        if (self.p1 == other.p1 and self.p2 == other.p2) or\
            (self.p1 == other.p2 and self.p2 == other.p1):
             ret = True
 
         return ret
 
-    def __ne__(self, other)
+    def __ne__(self, other):
         ret = False
-        if not ((self.p1 == other.p1 and self.p2 == other.p2)\
+        if not ((self.p1 == other.p1 and self.p2 == other.p2) or\
            (self.p1 == other.p2 and self.p2 == other.p1)):
             ret = True
 
@@ -65,8 +65,8 @@ class Circle(object):
     # Is this point within the circumcircle?
     def in_circle(self, p):
         ret = False
-        dx = self.x - p.x
-        dy = self.y - p.y
+        dx = self.center.x - p.x
+        dy = self.center.y - p.y
 
         dist = dx**2 + dy**2
 
@@ -92,7 +92,13 @@ class Triangle(object):
 
         u = ux**2 + uy**2
         v = vx**2 + vy**2
-        s = .5 / (ux * vy - uy * vy)
+        #a = p2.x**2 - p1.x**2 + p2.y**2 -p1.y**2
+        #b = p3.x**2 - p1.x**2 + p3.y**2 -p1.y**2
+        #s = 1.0 / (2.0 * (ux*vy - uy*vx))
+        if (ux * vy - uy * vx) != 0:
+            s = .5 / (ux * vy - uy * vx)
+        else:
+            s = 0
 
         circ_x = p1.x + (vy * u - uy * v) * s
         circ_y = p1.y + (ux * v - vx * u) * s
@@ -102,4 +108,4 @@ class Triangle(object):
 
         rad = dx**2 + dy**2
 
-        self.circle = Circle(Point(circ_x, cirx_y), rad)
+        self.circle = Circle(Point(circ_x, circ_y), rad)

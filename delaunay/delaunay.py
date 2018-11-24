@@ -7,7 +7,7 @@ class Delaunay(object):
 
         self.tris = []
 
-        fresh_start()
+        self.fresh_start()
 
     # Create the supertriangle
     def fresh_start(self):
@@ -18,8 +18,8 @@ class Delaunay(object):
         p3 = geo.Point(self.height, self.width)
         p4 = geo.Point(0, self.width)
 
-        tris.append(geo.Triangle(p1,p2,p3))
-        tris.append(geo.Triangle(p1,p3,p4))
+        self.tris.append(geo.Triangle(p1,p2,p3))
+        self.tris.append(geo.Triangle(p1,p3,p4))
 
     # Add points to the triangulation
     def add_points(self, points):
