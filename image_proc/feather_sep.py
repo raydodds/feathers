@@ -14,8 +14,7 @@ def show_wait_destroy(winname, img):
     cv.waitKey(0)
     cv.destroyWindow(winname)
 
-def separate_black(argv):
-    img_src = cv.imread(argv[1], cv.IMREAD_COLOR)
+def separate_black(img_src):
     h, w, ch = img_src.shape
     img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
 
@@ -96,8 +95,7 @@ def separate_black(argv):
     plt.show()
     #plt.savefig('signal.png')
 
-def separate_blue(argv):
-    img_src = cv.imread(argv[1], cv.IMREAD_COLOR)
+def separate_blue(img_src):
     h, w, ch = img_src.shape
     #img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
 
@@ -183,7 +181,11 @@ def separate_blue(argv):
     #plt.savefig('signal.png')
 
 def main(argv):
-    separate_blue(sys.argv)
+    img_src = cv.imread(argv[1], cv.IMREAD_COLOR)
+    if(img_src[0,0,0] > 50):
+        separate_blue(img_src)
+    else:
+        separate_black(img_src)
 
 
 if __name__ == "__main__":
