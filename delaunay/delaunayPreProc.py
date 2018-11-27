@@ -75,9 +75,9 @@ if __name__ == "__main__":
     if(len(sys.argv) < 2):
         print("no")
     else:
-        test, *fds = proc_all(sys.argv[1])
+        test = proc_all(sys.argv[1])
 
-		for tri in test.tris:
+		for tri in test[0].tris:
 			print(tri)
 
 

@@ -89,9 +89,9 @@ class Triangle(object):
 		l1 = line.Line((p1.x, p1.y), (p2.x, p2.y))
 		l2 = line.Line((p1.x, p1.y), (p3.x, p3.y))
 
-		isct = Point(*(l1.intersect(l2)))
+		isct = l1.intersect(l2)
 
-		rad = m.sqrt((p1.x-isct.x)**2 + (p1.y-isct.y)**2)
+		rad = m.sqrt((p1.x-isct[0])**2 + (p1.y-isct[0])**2)
 
 
 		self.circle = Circle(Point(circ_x, circ_y), rad)
