@@ -109,3 +109,6 @@ class Triangle(object):
         rad = dx**2 + dy**2
 
         self.circle = Circle(Point(circ_x, circ_y), rad)
+
+	def __repr__(self):
+		return 'Triangle('+str(self.p1)+','+str(self.p2)+','+str(self.p3)+')'

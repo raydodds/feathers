@@ -22,13 +22,15 @@ def proc_all(path):
         src = cv.imread(os.path.join(path, filename))
         h, w, ch = src.shape
         show_wait_destroy("ass",src)
-        bin, edge = preProc(src)
+        bin_, edge = preProc(src)
         feathers.append(src)
-        feathers_bin.append(bin)
+        feathers_bin.append(bin_)
         feathers_points.append(edge)
         d = delaunay.Delaunay(h,w)
         d.add_points(edge)
         delaun.append(d)
+
+	return delaun
 
 def preProc(feather):
     feather_bin = remove_grid.feather_pix(feather)
@@ -73,4 +75,11 @@ if __name__ == "__main__":
     if(len(sys.argv) < 2):
         print("no")
     else:
-        proc_all(sys.argv[1])
+        test, *fds = proc_all(sys.argv[1])
+
+		for tri in test.tris:
+			print(tri)
+
+
+
+
