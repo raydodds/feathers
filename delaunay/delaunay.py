@@ -30,7 +30,7 @@ class Delaunay(object):
 		# Add each point
 		for p in points:
 			curr_tris = []
-			edges.clear()
+			edges = set()
 			# If the point is in a tri's circumcircle, that tri goes away,
 			# but its the points of its edges create new triangles with p
 			for t in self.tris:

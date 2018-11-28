@@ -29,8 +29,8 @@ def feather_pix(img_src):
     h_size = w / HORIZONTAL_STRUC_DIV
     v_size = h / VERTICAL_STRUC_DIV
 
-    h_struct = cv.getStructuringElement(cv.MORPH_RECT, (h_size, 1))
-    v_struct = cv.getStructuringElement(cv.MORPH_RECT, (1, v_size))
+    h_struct = cv.getStructuringElement(cv.MORPH_RECT, (int(h_size), 1))
+    v_struct = cv.getStructuringElement(cv.MORPH_RECT, (1, int(v_size)))
 
     hor = cv.erode(hor, h_struct)
     #show_wait_destroy("hor_erode", hor)

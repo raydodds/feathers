@@ -31,10 +31,22 @@ class Point(object):
 
 		return ret
 
+	def __lt__(self, other):
+		if(self.x < other.x):
+			return True
+		elif(self.x > other.x):
+			return False
+		else:
+			return self.y < other.y
+			
 class Edge(object):
 	def __init__(self, p1, p2):
-		self.p1 = p1
-		self.p2 = p2
+		if(p1<p2):
+			self.p1 = p1
+			self.p2 = p2
+		else:
+			self.p1 = p2
+			self.p2 = p1
 
 	def __repr__(self):
 		return "Edge(%s, %s)" % (self.p1, self.p2)
