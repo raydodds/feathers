@@ -13,6 +13,11 @@ def show_wait_destroy(winname, img):
 	cv.waitKey(0)
 	cv.destroyWindow(winname)
 
+'''
+
+Probably user input: num feathers, thresh, sobel size, sample rate, border on/off, colors?
+
+'''
 def proc_all(path):
 	feathers = []
 	feathers_bin = []
@@ -44,14 +49,14 @@ def preProc(feather):
 	edges_y = cv.Sobel(feather_blur, cv.CV_64F, 0, 1, ksize=3)
 	yabs = cv.convertScaleAbs(edges_y)
 	sobeledges = cv.addWeighted(xabs, .5, yabs, .5, 0)
-	edges = cv.Canny(feather_blur, 100, 200)
+	#edges = cv.Canny(feather_blur, 100, 200)
 	#show_wait_destroy("edges",edges)
-	edges_pts = sampleEdges(sobeledges, 15, .1)
+	edges_pts = sampleEdges(sobeledges, 15, .025)
 	#print(edges_pts)
 	points_img = np.zeros((h,w),np.uint8)
 	for p in edges_pts:
 		points_img[p.x,p.y] = 255
-	show_wait_destroy("sample",points_img)
+	#show_wait_destroy("sample",points_img)
 	print("Finished a feather")
 	return feather_bin, edges_pts
 

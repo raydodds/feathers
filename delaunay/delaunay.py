@@ -26,13 +26,15 @@ class Delaunay(object):
 
 	# Add points to the triangulation
 	def add_points(self, points):
-		curr_tris = []
-		edges = set()
+		#curr_tris = []
+		polygon = set()
+		good_tris = []
+		bad_tris = []
 
 		# Add each point
 		for p in points:
-			curr_tris = []
-			edges = set()
+			good_tris = []
+			bad_tris = []
 			# If the point is in a tri's circumcircle, that tri goes away,
 			# but its the points of its edges create new triangles with p
 			for t in self.tris:
@@ -44,21 +46,37 @@ class Delaunay(object):
 					bad = bad or (line.Line((t.p1.x, t.p1.y), (t.p3.x, t.p3.y)).det((p.x, p.y)) == 0)
 					# END FUCK CHECK
 					if(bad):
-						curr_tris.append(t)
+						good_tris.append(t)
 					else:
-						edges.add(t.e1)
-						edges.add(t.e2)
-						edges.add(t.e3)
+						bad_tris.append(t)
+						#edges.add(t.e1)
+						#edges.add(t.e2)
+						#edges.add(t.e3)
 				else:
 					# These triangles come out unscathed
-					curr_tris.append(t)
+					good_tris.append(t)
+
+			polygon = set()
+			for t in bad_tris:
+				t_edges = [t.e1,t.e2,t.e3]
+				for edge in t_edges:
+					shared_edge = False
+					for ot in bad_tris:
+						ot_edges = [ot.e1,ot.e2,ot.e3]
+						if(t != ot and edge in ot_edges):
+							print("bye")
+							shared_edge = True
+							break
+					if(not shared_edge):
+						polygon.add(edge)
+						
 
 			# Create the triangles with the edges
-			for e in edges:
-				curr_tris.append(geo.Triangle(e.p1, e.p2, p))
+			for e in polygon:
+				good_tris.append(geo.Triangle(e.p1, e.p2, p))
 
 			# Replace current set of triangles with the new one
-			self.tris = curr_tris
+			self.tris = good_tris
 
 		real_tris = []
 		for t in self.tris:
