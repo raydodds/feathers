@@ -64,7 +64,6 @@ class Delaunay(object):
 					for ot in bad_tris:
 						ot_edges = [ot.e1,ot.e2,ot.e3]
 						if(t != ot and edge in ot_edges):
-							print("bye")
 							shared_edge = True
 							break
 					if(not shared_edge):
