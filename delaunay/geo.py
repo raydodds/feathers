@@ -89,12 +89,12 @@ class Triangle(object):
 		l1 = line.Line((p1.x, p1.y), (p2.x, p2.y))
 		l2 = line.Line((p1.x, p1.y), (p3.x, p3.y))
 
-		isct = l1.intersect(l2)
 
-		rad = m.sqrt((p1.x-isct[0])**2 + (p1.y-isct[0])**2)
+		isct = l1.perp_bisect().intersect(l2.perp_bisect())
 
+		rad = math.sqrt((p1.x-isct[0])**2 + (p1.y-isct[0])**2)
 
-		self.circle = Circle(Point(circ_x, circ_y), rad)
+		self.circle = Circle(Point(isct[0], isct[1]), rad)
 
 	def __repr__(self):
 		return 'Triangle('+str(self.p1)+','+str(self.p2)+','+str(self.p3)+')'

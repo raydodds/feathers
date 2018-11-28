@@ -160,6 +160,7 @@ def tests():
 	l1 = Line(pt0, pt2)
 	# Verical
 	l3 = Line(pt5, pt1)
+	l5 = Line(pt2, pt3)
 	# Horizontal
 	l4 = Line(pt4, pt3)
 
@@ -186,6 +187,12 @@ def tests():
 
 	# intersect with vline and hline
 	assert l4.intersect(l3) == (0,0)
+
+	assert l5.intersect(l0) == (1,1)
+
+
+
+
 
 
 	
