@@ -34,6 +34,6 @@ for tri in d.tris:
 
 vec = Vectorizer('15cm', '15cm')
 for tri in d.tris:
-	vec.add_tri(tri, colors[r.randint(0, 16)])
+	vec.add_tri(tri, colors[r.randint(0, 15)])
 
 vec.save('testvec')
