@@ -31,10 +31,22 @@ class Point(object):
 
 		return ret
 
+	def __lt__(self, other):
+		if(self.x < other.x):
+			return True
+		elif(self.x > other.x):
+			return False
+		else:
+			return self.y < other.y
+			
 class Edge(object):
 	def __init__(self, p1, p2):
-		self.p1 = p1
-		self.p2 = p2
+		if(p1<p2):
+			self.p1 = p1
+			self.p2 = p2
+		else:
+			self.p1 = p2
+			self.p2 = p1
 
 	def __repr__(self):
 		return "Edge(%s, %s)" % (self.p1, self.p2)
@@ -89,12 +101,12 @@ class Triangle(object):
 		l1 = line.Line((p1.x, p1.y), (p2.x, p2.y))
 		l2 = line.Line((p1.x, p1.y), (p3.x, p3.y))
 
-		isct = l1.intersect(l2)
 
-		rad = m.sqrt((p1.x-isct[0])**2 + (p1.y-isct[0])**2)
+		isct = l1.perp_bisect().intersect(l2.perp_bisect())
 
+		rad = math.sqrt((p1.x-isct[0])**2 + (p1.y-isct[0])**2)
 
-		self.circle = Circle(Point(circ_x, circ_y), rad)
+		self.circle = Circle(Point(isct[0], isct[1]), rad)
 
 	def __repr__(self):
 		return 'Triangle('+str(self.p1)+','+str(self.p2)+','+str(self.p3)+')'
