@@ -7,6 +7,7 @@ class Delaunay(object):
 		self.width = w
 
 		self.tris = []
+		self.corners = []
 
 		self.fresh_start()
 
@@ -18,6 +19,7 @@ class Delaunay(object):
 		p2 = geo.Point(self.height, 0)
 		p3 = geo.Point(self.height, self.width)
 		p4 = geo.Point(0, self.width)
+		self.corners = [p1,p2,p3,p4]
 
 		self.tris.append(geo.Triangle(p1,p2,p3))
 		self.tris.append(geo.Triangle(p1,p3,p4))
@@ -57,3 +59,9 @@ class Delaunay(object):
 
 			# Replace current set of triangles with the new one
 			self.tris = curr_tris
+
+		real_tris = []
+		for t in self.tris:
+			if (t.p1 not in self.corners) and (t.p2 not in self.corners) and (t.p3 not in self.corners):
+				real_tris.append(t)
+		self.tris = real_tris
