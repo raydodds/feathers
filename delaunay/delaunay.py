@@ -35,27 +35,24 @@ class Delaunay(object):
 		for p in points:
 			good_tris = []
 			bad_tris = []
+			bad = False
 			# If the point is in a tri's circumcircle, that tri goes away,
 			# but its the points of its edges create new triangles with p
 			for t in self.tris:
 				if t.circle.in_circle(p):
 					# FUCK CHECK
-					bad = False
 					bad = bad or (line.Line((t.p1.x, t.p1.y), (t.p2.x, t.p2.y)).det((p.x, p.y)) == 0)
 					bad = bad or (line.Line((t.p3.x, t.p3.y), (t.p2.x, t.p2.y)).det((p.x, p.y)) == 0)
 					bad = bad or (line.Line((t.p1.x, t.p1.y), (t.p3.x, t.p3.y)).det((p.x, p.y)) == 0)
 					# END FUCK CHECK
-					if(bad):
-						good_tris.append(t)
-					else:
+					if(not bad):
 						bad_tris.append(t)
-						#edges.add(t.e1)
-						#edges.add(t.e2)
-						#edges.add(t.e3)
 				else:
 					# These triangles come out unscathed
 					good_tris.append(t)
 
+			if(bad):
+				continue
 			polygon = set()
 			for t in bad_tris:
 				t_edges = [t.e1,t.e2,t.e3]
@@ -82,3 +79,4 @@ class Delaunay(object):
 			if (t.p1 not in self.corners) and (t.p2 not in self.corners) and (t.p3 not in self.corners):
 				real_tris.append(t)
 		self.tris = real_tris
+
