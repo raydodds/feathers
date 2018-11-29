@@ -83,7 +83,7 @@ class Circle(object):
 
 		dist = dx**2 + dy**2
 
-		if(dist < self.rad**2):
+		if(dist < self.rad):
 			ret = True
 
 		return ret
@@ -104,7 +104,7 @@ class Triangle(object):
 
 		isct = l1.perp_bisect().intersect(l2.perp_bisect())
 
-		rad = math.sqrt((p1.x-isct[0])**2 + (p1.y-isct[0])**2)
+		rad = (p1.x-isct[0])**2 + (p1.y-isct[1])**2
 
 		self.circle = Circle(Point(isct[0], isct[1]), rad)
 

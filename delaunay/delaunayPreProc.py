@@ -6,6 +6,7 @@ import random
 import remove_grid
 import os
 import delaunay
+from vectangle import Vectorizer
 
 def show_wait_destroy(winname, img):
 	cv.imshow(winname, img)
@@ -13,6 +14,11 @@ def show_wait_destroy(winname, img):
 	cv.waitKey(0)
 	cv.destroyWindow(winname)
 
+'''
+
+Probably user input: num feathers, thresh, sobel size, sample rate, border on/off, blur, colors?
+
+'''
 def proc_all(path):
 	feathers = []
 	feathers_bin = []
@@ -28,6 +34,10 @@ def proc_all(path):
 		feathers_points.append(edge)
 		d = delaunay.Delaunay(h,w)
 		d.add_points(edge)
+		vec = Vectorizer('15cm','15cm')
+		for tri in d.tris:
+			vec.add_tri(tri,"#C0C0C0")
+		vec.save('testvec')
 		delaun.append(d)
 
 	return delaun
@@ -44,15 +54,14 @@ def preProc(feather):
 	edges_y = cv.Sobel(feather_blur, cv.CV_64F, 0, 1, ksize=3)
 	yabs = cv.convertScaleAbs(edges_y)
 	sobeledges = cv.addWeighted(xabs, .5, yabs, .5, 0)
-	edges = cv.Canny(feather_blur, 100, 200)
+	#edges = cv.Canny(feather_blur, 100, 200)
 	#show_wait_destroy("edges",edges)
-	edges_pts = sampleEdges(sobeledges, 15, .1)
+	edges_pts = sampleEdges(sobeledges, 90, .25)
 	#print(edges_pts)
 	points_img = np.zeros((h,w),np.uint8)
 	for p in edges_pts:
 		points_img[p.x,p.y] = 255
 	show_wait_destroy("sample",points_img)
-	print("Finished a feather")
 	return feather_bin, edges_pts
 
 def clip(feather, feather_bin):
@@ -92,7 +101,6 @@ def sampleEdges(edges, thresh, sample_rate=.75):
 				points.append(geo.Point(i,j))
 	edge_pt_count = int(float(len(points) * sample_rate))
 	sampled_points = random.sample(points, edge_pt_count)
-	print(len(sampled_points))
 	return sampled_points
 
 if __name__ == "__main__":
