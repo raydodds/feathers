@@ -18,12 +18,13 @@ class Vectorizer:
 		self.height = h
 		self.width = w
 
-	def add_tri(self, t, color):
+	def add_tri(self, t, color, sw=0):
 		ts = '<path d="M '
 		ts += str(t.p1.x)+', '+str(t.p1.y)+' '
 		ts += str(t.p2.x)+', '+str(t.p2.y)+' '
 		ts += str(t.p3.x)+', '+str(t.p3.y)+' '
-		ts += 'z" fill="'+color+'" stroke="#0000000" />'
+		ts += 'z" fill="'+color+'" stroke="#0000000" stroke-width="'
+		ts += str(sw)+'" />'
 
 		self.tristrs += [ts]
 
