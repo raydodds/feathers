@@ -13,10 +13,15 @@ class Vectorizer:
 				'<defs />\n'
 	TAIL = '</svg>'
 
-	def __init__(self, h='100cm', w='100cm'):
+	def __init__(self, h='500px', w='500px'):
 		self.tristrs = []
 		self.height = h
 		self.width = w
+		self.bbox = '<path d="M 0, 0 '
+		self.bbox += '0, '+str(self.height)+' '
+		self.bbox += str(self.width)+', '+str(self.height)+' '
+		self.bbox += str(self.height)+', 0 z" fill="#FFF" stroke="#000"'
+		self.bbox += ' stroke-width="5px" />'
 
 	def add_tri(self, t, color, sw=0):
 		ts = '<path d="M '
