@@ -9,187 +9,194 @@ HORIZONTAL_STRUC_DIV = 15
 VERTICAL_STRUC_DIV = 15
 
 def show_wait_destroy(winname, img):
-    cv.imshow(winname, img)
-    cv.moveWindow(winname, 500, 0)
-    cv.waitKey(0)
-    cv.destroyWindow(winname)
+	cv.imshow(winname, img)
+	cv.moveWindow(winname, 500, 0)
+	cv.waitKey(0)
+	cv.destroyWindow(winname)
 
 def separate_black(img_src):
-    h, w, ch = img_src.shape
-    img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
+	h, w, ch = img_src.shape
+	img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
 
-    sig_y = np.zeros(h)
-    for i in range (0, h):
-        for j in range (0, w):
-            sig_y[i] += img_gs[i,j]
+	sig_y = np.zeros(h)
+	for i in range (0, h):
+		for j in range (0, w):
+			sig_y[i] += img_gs[i,j]
 
-    #sig_y = smooth(sig_y, 45, 'bartlett')
-    sig_y = gaussian_filter(sig_y, 10)
-    maxima_y = argrelextrema(sig_y, np.greater)
-    maxima_y = maxima_y[0]
-    minima_y = argrelextrema(sig_y, np.less)
-    minima_y = minima_y[0]
+	#sig_y = smooth(sig_y, 45, 'bartlett')
+	sig_y = gaussian_filter(sig_y, 10)
+	maxima_y = argrelextrema(sig_y, np.greater)
+	maxima_y = maxima_y[0]
+	minima_y = argrelextrema(sig_y, np.less)
+	minima_y = minima_y[0]
 
-    big_max = 0
-    for max in maxima_y:
-        if sig_y[max] > sig_y[big_max]:
-            big_max = max
+	big_max = 0
+	for maxx in maxima_y:
+		if sig_y[maxx] > sig_y[big_max]:
+			big_max = maxx
 
-    bottom_cut = 0
-    top_cut = 0
-    for i in range(0, len(minima_y) - 1):
-        if minima_y[i] < big_max and minima_y[i+1] > big_max:
-            bottom_cut = minima_y[i]
-            top_cut = minima_y[i+1]
-    print(bottom_cut, top_cut)
+	min_left = big_max
+	min_right = big_max
+	for minn in minima_y:
+		if minn < big_max and sig_y[minn] < sig_y[min_left]:
+			min_left = minn
+		if minn > big_max and sig_y[minn] < sig_y[min_right]:
+			min_right = minn
 
-    img_src = img_src[bottom_cut:top_cut, 0:w]
+	if min_left == big_max:
+		min_left = 50
+	if min_right == big_max:
+		min_right = h - 100
 
-    h, w, ch = img_src.shape
-    img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
-    sig = np.zeros(w)
-    for i in range (0, w):
-        for j in range (0, h):
-            sig[i] += img_gs[j,i]
+	img_src = img_src[min_left:min_right, 0:w]
 
-    #sig = smooth(sig, 30, 'blackman')
-    sig = gaussian_filter(sig, 5)
-    minima = argrelextrema(sig, np.greater)
-    minima = minima[0]
-    #print(minima)
+	h, w, ch = img_src.shape
+	img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
+	sig = np.zeros(w)
+	for i in range (0, w):
+		for j in range (0, h):
+			sig[i] += img_gs[j,i]
 
-    img_src = img_src[0:h, minima[1]:w]
+	#sig = smooth(sig, 30, 'blackman')
+	sig = gaussian_filter(sig, 5)
+	minima = argrelextrema(sig, np.greater)
+	minima = minima[0]
+	#print(minima)
 
-    h, w, ch = img_src.shape
-    img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
-    sig = np.zeros(w)
-    for i in range (0, w):
-        for j in range (0, h):
-            sig[i] += img_gs[j,i]
+	img_src = img_src[0:h, minima[1]:w]
 
-    sig = gaussian_filter(sig, 5)
-    minima = argrelextrema(sig, np.less)
-    minima = minima[0]
+	h, w, ch = img_src.shape
+	img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
+	sig = np.zeros(w)
+	for i in range (0, w):
+		for j in range (0, h):
+			sig[i] += img_gs[j,i]
 
-    show_wait_destroy("ass",img_src)
-    #print(minima_y)
-    #print(bottom_cut,top_cut)
-    feathers = []
-    for i in range (0, len(minima) - 1):
-        new_feath = img_src[0:h, minima[i]:minima[i+1]]
-        fh,fw,fc = new_feath.shape
-        if(fh > 0 and fw > 0):
-            cv.imwrite("f"+str(i)+".png",new_feath)
-            feathers.append(new_feath)
+	sig = gaussian_filter(sig, 5)
+	minima = argrelextrema(sig, np.less)
+	minima = minima[0]
 
-    new_feath = img_src[0:h, minima[len(minima)-1]:w]
-    fh,fw,fc = new_feath.shape
-    if(fh > 0 and fw > 0):
-        cv.imwrite("f"+str(len(minima)-1)+".png",new_feath)
-        feathers.append(new_feath)
+	feathers = []
+	for i in range (0, len(minima) - 1):
+		new_feath = img_src[0:h, minima[i]:minima[i+1]]
+		fh,fw,fc = new_feath.shape
+		if(fh > 0 and fw > 0):
+			cv.imwrite("f"+str(i)+".png",new_feath)
+			feathers.append(new_feath)
 
-    #print(len(feathers))
-    #for i in range (0, len(feathers)):
-    #    show_wait_destroy("feather", feathers[i])
-    #plt.plot(sig)
-    plt.show()
-    #plt.savefig('signal.png')
+	new_feath = img_src[0:h, minima[len(minima)-1]:w]
+	fh,fw,fc = new_feath.shape
+	if(fh > 0 and fw > 0):
+		cv.imwrite("f"+str(len(minima)-1)+".png",new_feath)
+		feathers.append(new_feath)
+
+	#print(len(feathers))
+	#for i in range (0, len(feathers)):
+	#	show_wait_destroy("feather", feathers[i])
+	#plt.plot(sig)
+	plt.show()
+	#plt.savefig('signal.png')
 
 def separate_blue(img_src):
-    h, w, ch = img_src.shape
-    #img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
+	h, w, ch = img_src.shape
+	#img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
 
-    sig_y = np.zeros(h)
-    for i in range (0, h):
-        for j in range (0, w):
-            sig_y[i] += img_src[i,j,0]
+	sig_y = np.zeros(h)
+	for i in range (0, h):
+		for j in range (0, w):
+			sig_y[i] += img_src[i,j,0]
 
-    #sig_y = smooth(sig_y, 45, 'bartlett')
-    sig_y = gaussian_filter(sig_y, 10)
-    #plt.plot(sig_y)
-    #plt.show()
-    maxima_y = argrelextrema(sig_y, np.greater)
-    maxima_y = maxima_y[0]
-    minima_y = argrelextrema(sig_y, np.less)
-    minima_y = minima_y[0]
+	#sig_y = smooth(sig_y, 45, 'bartlett')
+	sig_y = gaussian_filter(sig_y, 10)
+	#plt.plot(sig_y)
+	#plt.show()
+	maxima_y = argrelextrema(sig_y, np.greater)
+	maxima_y = maxima_y[0]
+	minima_y = argrelextrema(sig_y, np.less)
+	minima_y = minima_y[0]
 
-    big_min = 0
-    for min in minima_y:
-        if sig_y[min] < sig_y[big_min]:
-            big_min = min
+	big_min = 0
+	for min in minima_y:
+		if sig_y[min] < sig_y[big_min]:
+			big_min = min
 
-    bottom_cut = 0
-    top_cut = 0
-    for i in range(0, len(maxima_y) - 1):
-        if maxima_y[i] < big_min and maxima_y[i+1] > big_min:
-            bottom_cut = maxima_y[i]
-            top_cut = maxima_y[i+1]
-    print(bottom_cut, top_cut)
+	max_left = big_min
+	max_right = big_min
+	for maxx in minima_y:
+		if maxx < big_min and sig_y[maxx] > sig_y[max_left]:
+			max_left = maxx
+		if maxx > big_min and sig_y[maxx] > sig_y[max_right]:
+			max_right = maxx
 
-    img_src = img_src[bottom_cut:top_cut, 0:w]
-    #show_wait_destroy("src",img_src)
+	if max_left == big_min:
+		max_left = 50
+	if max_right == big_min:
+		max_right = h - 100
 
-    h, w, ch = img_src.shape
-    #img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
-    sig = np.zeros(w)
-    for i in range (0, w):
-        for j in range (0, h):
-            sig[i] += img_src[j,i,0]
+	img_src = img_src[max_left:max_right, 0:w]
+	#show_wait_destroy("src",img_src)
 
-    #sig = smooth(sig, 30, 'blackman')
-    sig = gaussian_filter(sig, 5)
-    minima = argrelextrema(sig, np.greater)
-    minima = minima[0]
-    #print(minima)
+	h, w, ch = img_src.shape
+	#img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
+	sig = np.zeros(w)
+	for i in range (0, w):
+		for j in range (0, h):
+			sig[i] += img_src[j,i,0]
 
-    img_src = img_src[0:h, minima[1]:w]
-    #show_wait_destroy("src",img_src)
+	#sig = smooth(sig, 30, 'blackman')
+	sig = gaussian_filter(sig, 5)
+	minima = argrelextrema(sig, np.greater)
+	minima = minima[0]
+	#print(minima)
 
-    h, w, ch = img_src.shape
-    #img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
-    sig = np.zeros(w)
-    for i in range (0, w):
-        for j in range (0, h):
-            sig[i] += img_src[j,i,0]
+	img_src = img_src[0:h, minima[1]:w]
+	#show_wait_destroy("src",img_src)
 
-    sig = gaussian_filter(sig, 5)
-    maxima = argrelextrema(sig, np.greater)
-    maxima = maxima[0]
+	h, w, ch = img_src.shape
+	#img_gs = cv.cvtColor(img_src, cv.COLOR_BGR2GRAY)
+	sig = np.zeros(w)
+	for i in range (0, w):
+		for j in range (0, h):
+			sig[i] += img_src[j,i,0]
 
-    show_wait_destroy("ass",img_src)
-    #print(minima_y)
-    #print(bottom_cut,top_cut)
-    feathers = []
-    for i in range (0, len(maxima) - 1):
-        new_feath = img_src[0:h, maxima[i]:maxima[i+1]]
-        fh,fw,fc = new_feath.shape
-        if(fh > 0 and fw > 0):
-            cv.imwrite("f"+str(i)+".png",new_feath)
-            feathers.append(new_feath)
+	sig = gaussian_filter(sig, 5)
+	maxima = argrelextrema(sig, np.greater)
+	maxima = maxima[0]
 
-    new_feath = img_src[0:h, maxima[len(maxima)-1]:w]
-    fh,fw,fc = new_feath.shape
-    if(fh > 0 and fw > 0):
-        cv.imwrite("f"+str(len(maxima)-1)+".png",new_feath)
-        feathers.append(new_feath)
+	show_wait_destroy("ass",img_src)
+	#print(minima_y)
+	#print(bottom_cut,top_cut)
+	feathers = []
+	for i in range (0, len(maxima) - 1):
+		new_feath = img_src[0:h, maxima[i]:maxima[i+1]]
+		fh,fw,fc = new_feath.shape
+		if(fh > 0 and fw > 0):
+			cv.imwrite("f"+str(i)+".png",new_feath)
+			feathers.append(new_feath)
 
-    #print(len(feathers))
-    #for i in range (0, len(feathers)):
-    #    show_wait_destroy("feather", feathers[i])
-    #plt.plot(sig)
-    plt.show()
-    #plt.savefig('signal.png')
+	new_feath = img_src[0:h, maxima[len(maxima)-1]:w]
+	fh,fw,fc = new_feath.shape
+	if(fh > 0 and fw > 0):
+		cv.imwrite("f"+str(len(maxima)-1)+".png",new_feath)
+		feathers.append(new_feath)
+
+	#print(len(feathers))
+	#for i in range (0, len(feathers)):
+	#	show_wait_destroy("feather", feathers[i])
+	#plt.plot(sig)
+	plt.show()
+	#plt.savefig('signal.png')
 
 def main(argv):
-    img_src = cv.imread(argv[1], cv.IMREAD_COLOR)
-    if(img_src[0,0,0] > 50):
-        separate_blue(img_src)
-    else:
-        separate_black(img_src)
+	img_src = cv.imread(argv[1], cv.IMREAD_COLOR)
+	if(img_src[0,0,0] > 50):
+		separate_blue(img_src)
+	else:
+		separate_black(img_src)
 
 
 if __name__ == "__main__":
-    if(len(sys.argv) < 1):
-        print("Usage: python test.py filename")
-    else:
-        main(sys.argv)
+	if(len(sys.argv) < 1):
+		print("Usage: python test.py filename")
+	else:
+		main(sys.argv)
