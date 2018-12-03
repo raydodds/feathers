@@ -1,0 +1,6 @@
+<svg baseProfile="full" height="500px" version="1.1" width="500px" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs />
+<path d="M 0, 0 500, 0 500, 500 0, 500 z" fill="#FFF" stroke="#000000" stroke-width="5px" />
+<path d="M 125, 130 130, 125 120, 125 z" fill="#FF0000" stroke="#0000000" stroke-width="0" />
+<path d="M 120, 125 130, 125 125, 120 z" fill="#00FFFF" stroke="#0000000" stroke-width="0" />
+</svg>
