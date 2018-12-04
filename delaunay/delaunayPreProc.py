@@ -4,13 +4,16 @@ import math
 import sys
 import cv2 as cv
 import numpy as np
-import geo
+import delaunay.geo as geo
 import random
-import remove_grid
+import delaunay.remove_grid as remove_grid
 import os
-import delaunay
 import random
-from vectangle import Vectorizer
+from delaunay.vectangle import Vectorizer
+import delaunay.delaunay as delaunay
+
+XBOUND = 800
+YBOUND = 800
 
 def show_wait_destroy(winname, img):
 	cv.imshow(winname, img)
@@ -29,7 +32,7 @@ def proc_all(path, num_feath, sample_thresh, sample_rate, filter_type, border_wi
 	feathers_points = []
 	delaun = []
 	ind = 0
-	vec = Vectorizer('1000px','1000px')
+	vec = Vectorizer(str(XBOUND)+'px',str(YBOUND)+'px')
 	for filename in os.listdir(path):
 		if(ind == num_feath):
 			break
@@ -51,13 +54,12 @@ def proc_all(path, num_feath, sample_thresh, sample_rate, filter_type, border_wi
 		delaun.append(d)
 		ind += 1
 
-	vec.save('testvec')
-	return delaun
+	return vec.stringify()
 
 def translate(rot_tris):
-	minx = geo.Point(10000,10000)
+	minx = geo.Point(XBOUND*10,YBOUND*10)
 	maxx = geo.Point(0,0)
-	miny = geo.Point(10000,10000)
+	miny = geo.Point(XBOUND*10,YBOUND*10)
 	maxy = geo.Point(0,0)
 	for tri in rot_tris:
 		if(tri.p1.y < miny.y):
@@ -88,8 +90,8 @@ def translate(rot_tris):
 		if(tri.p3.y > maxx.x):
 			maxx = tri.p3
 
-	xmove = random.randint(-minx.x, 1000-maxx.x)
-	ymove = random.randint(-miny.y, 1000-maxy.y)
+	xmove = random.randint(-minx.x, XBOUND-maxx.x)
+	ymove = random.randint(-miny.y, YBOUND-maxy.y)
 	for tri in rot_tris:
 		tri.p1.x += xmove
 		tri.p1.y += ymove
@@ -157,7 +159,7 @@ def preProc(feather, sample_thresh, sample_rate, filter_type):
 	points_img = np.zeros((h,w),np.uint8)
 	for p in edges_pts:
 		points_img[p.x,p.y] = 255
-	show_wait_destroy("sample",just_feather)
+	#show_wait_destroy("sample",just_feather)
 	return feather_bin, edges_pts
 
 def clip(feather, feather_bin):

@@ -1,4 +1,4 @@
-import geo
+import delaunay.geo as geo
 
 __author__ = "Ray Dodds"
 
@@ -33,20 +33,28 @@ class Vectorizer:
 
 		self.tristrs += [ts]
 
+	def stringify(self):
+		res = ''
+		res += Vectorizer.TO_HEIGHT
+		res += str(self.height)
+		res += Vectorizer.TO_WIDTH
+		res += str(self.width)
+		res += Vectorizer.HEAD_END
+		for tri in self.tristrs:
+			res += tri+'\n'
+		res += Vectorizer.TAIL
+
+		return res
+
+
 	def save(self, filename):
 		try:
 			f = open(filename+'.svg', 'w+')
 		except Exception as e:
 			print(e)
 
-		f.write(Vectorizer.TO_HEIGHT)
-		f.write(self.height)
-		f.write(Vectorizer.TO_WIDTH)
-		f.write(self.width)
-		f.write(Vectorizer.HEAD_END)
-		for tri in self.tristrs:
-			f.write(tri+'\n')
-		f.write(Vectorizer.TAIL)
+		f.write(self.stringify())
+
 		f.close()
 
 

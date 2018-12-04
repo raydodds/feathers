@@ -1,5 +1,5 @@
-import geo
-import line
+import delaunay.geo as geo
+import delaunay.line as line
 
 class Delaunay(object):
 	def __init__(self, h, w):

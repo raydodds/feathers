@@ -1,5 +1,5 @@
 import math
-import line
+import delaunay.line as line
 
 TOLERANCE = .001
 
