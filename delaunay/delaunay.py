@@ -1,6 +1,11 @@
 import delaunay.geo as geo
 import delaunay.line as line
 
+'''
+
+Perform a delaunay triangulation
+
+'''
 class Delaunay(object):
 	def __init__(self, h, w):
 		self.height = h

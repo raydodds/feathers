@@ -15,15 +15,10 @@ import delaunay.delaunay as delaunay
 XBOUND = 800
 YBOUND = 800
 
-def show_wait_destroy(winname, img):
-	cv.imshow(winname, img)
-	cv.moveWindow(winname, 500, 0)
-	cv.waitKey(0)
-	cv.destroyWindow(winname)
-
 '''
 
 Probably user input: num feathers, thresh, sobel size, sample rate, border on/off, blur, colors?
+Process all feathers in a directory
 
 '''
 def proc_all(path, num_feath, sample_thresh, sample_rate, filter_type, border_width, color):
@@ -49,13 +44,18 @@ def proc_all(path, num_feath, sample_thresh, sample_rate, filter_type, border_wi
 		trans_tris = translate(rot_tris)
 		i = 0
 		for tri in trans_tris:
-			vec.add_tri(tri,colors[i])
+			vec.add_tri(tri,colors[i],border_width)
 			i += 1
 		delaun.append(d)
 		ind += 1
 
 	return vec.stringify()
 
+'''
+
+Perform random translation on triangulation
+
+'''
 def translate(rot_tris):
 	minx = geo.Point(XBOUND*10,YBOUND*10)
 	maxx = geo.Point(0,0)
@@ -102,6 +102,11 @@ def translate(rot_tris):
 	return rot_tris
 	
 
+'''
+
+Rotate triangulation by angle degrees around point with max y
+
+'''
 def rotate(tris, angle):
 	#actually max
 	minpt = geo.Point(0,0)
@@ -138,6 +143,11 @@ def rotate(tris, angle):
 	return tris
 	
 
+'''
+
+Preprocess a single feather - remove grid, find edges, sample edges
+
+'''
 def preProc(feather, sample_thresh, sample_rate, filter_type):
 	feather_bin = remove_grid.feather_pix(feather)
 	h,w,ch = feather.shape
@@ -159,9 +169,13 @@ def preProc(feather, sample_thresh, sample_rate, filter_type):
 	points_img = np.zeros((h,w),np.uint8)
 	for p in edges_pts:
 		points_img[p.x,p.y] = 255
-	#show_wait_destroy("sample",just_feather)
 	return feather_bin, edges_pts
 
+'''
+
+Clips a section of an image using a binarized version of the image
+
+'''
 def clip(feather, feather_bin):
 	h,w,ch = feather.shape
 	just_feather = np.zeros((h,w,ch), np.uint8)
@@ -173,6 +187,11 @@ def clip(feather, feather_bin):
 				just_feather[i,j,2] = feather[i,j,2]
 	return just_feather
 
+'''
+
+Sample an edge detected image
+
+'''
 def sampleEdges(edges, thresh, sample_rate=.75):
 	neigh_sum = 0
 	total_neigh = 0
@@ -201,6 +220,11 @@ def sampleEdges(edges, thresh, sample_rate=.75):
 	sampled_points = random.sample(points, edge_pt_count)
 	return sampled_points
 
+'''
+
+Define each triangle's color
+
+'''
 def color_tris(feather, tris):
 	colors = []
 	for tri in tris:
@@ -214,13 +238,11 @@ def color_tris(feather, tris):
 	return colors
 
 if __name__ == "__main__":
-	if(len(sys.argv) < 2):
+	if(len(sys.argv) < 8):
 		print("no")
 	else:
-		test = proc_all(sys.argv[1],int(sys.argv[2]),int(sys.argv[3]),float(sys.argv[4]),sys.argv[5],sys.argv[6],sys.argv[7])
-
-		for tri in test[0].tris:
-			print(tri)
+		test = proc_all(sys.argv[1],int(sys.argv[2]),int(sys.argv[3]),\
+						float(sys.argv[4]),sys.argv[5],sys.argv[6],sys.argv[7])
 
 
 
