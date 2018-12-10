@@ -51,12 +51,14 @@
 						Number of Feathers:
 						<input type='number' name='num_feath' value='2' min='1'>
 						<br>
+						<!--
 						Border Size:
 						<input type='number' name='border_width' value='0'>
 						<br>
 						Recolor:
 						<input type='radio' name='color' value='True' checked>On
 						<input type='radio' name='color' value='False'> Off
+						-->
 					</td>
 					<td>
 						<input type='submit' value='Apply'>
